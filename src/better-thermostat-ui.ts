@@ -34,7 +34,9 @@ import {
   mdiPlus,
   mdiAirConditioner,
   mdiWeatherWindy,
-  mdiSunSnowflakeVariant
+  mdiAccountArrowRightOutline,
+  mdiBedOutline,
+  mdiSofaOutline
 } from "@mdi/js";
 
 import {
@@ -65,6 +67,9 @@ const modeIcons: {
   auto: mdiCalendarSync,
   heat_cool: mdiAutorenew,
   heat: mdiFire,
+  knx_comfort: mdiSofaOutline,
+  knx_away: mdiAccountArrowRightOutline,
+  knx_sleep: mdiBedOutline,
   cool: mdiSnowflake,
   off: mdiPower,
   fan_only: mdiFan,
@@ -359,7 +364,7 @@ export class BetterThermostatUi extends LitElement implements LovelaceCard {
           height: 100%;
       }
       bt-ha-control-circular-slider {
-        --primary-color: var(--mode-color);
+        --primary-color: var(--state-climate-heat-color);
       }
 
       .content {
@@ -418,7 +423,17 @@ export class BetterThermostatUi extends LitElement implements LovelaceCard {
         fill: var(--primary-text-color);
       }
       .eco {
-        --mode-color: var(--energy-non-fossil-color);
+        --state-climate-heat-color: var(--energy-non-fossil-color);
+      }
+
+      .comfort {
+        --primary-color: var(--state-climate-heat-color);
+      }
+      .sleep {
+        --primary-color: var(--mode-color);
+      }
+      .away {
+        --state-climate-heat-color: var(--energy-non-fossil-color);
       }
 
       .summer {
@@ -845,36 +860,71 @@ export class BetterThermostatUi extends LitElement implements LovelaceCard {
       ${
         (this.value.low != null &&
         this.value.high != null &&
-        this.stateObj.state !== UNAVAILABLE) ? html`
-        <bt-ha-control-circular-slider
-          class="${(this?.stateObj?.attributes?.saved_temperature && this?.stateObj?.attributes?.saved_temperature !== null) ? 'eco' : ''} ${this.lowBattery !== null || this.error.length > 0 ? 'battery': ''} ${this.window ? 'window_open': ''}  ${this.summer ? 'summer': ''} "
-          .inactive=${this.window}
-          dual
-          .low=${this.value.low}
-          .high=${this.value.high}
-          .min=${this.min}
-          .max=${this.max}
-          .step=${this.step}
-          .current=${this.current}
-          @low-changed=${this._highChanged}
-          @low-changing=${this._highChanging}
-          @high-changed=${this._highChanged}
-          @high-changing=${this._highChanging}
-        >
-        ` : html`
-        <bt-ha-control-circular-slider
-          class="${(this?.stateObj?.attributes?.saved_temperature && this?.stateObj?.attributes?.saved_temperature !== null) ? 'eco' : ''} ${this.lowBattery !== null || this.error.length > 0 ? 'battery': ''} ${this.window ? 'window_open': ''}  ${this.summer ? 'summer': ''} "
-          .inactive=${this.window}
-          .mode="start"
-          @value-changed=${this._highChanged}
-          @value-changing=${this._highChanging}
-          .value=${this.value.value}
-          .current=${this.current}
-          step=${this.step}
-          min=${this.min}
-          max=${this.max}
-        >
-        `
+        this.stateObj.state !== UNAVAILABLE) ?
+          (this?._config?.knx_mode ? 
+            html`
+            <bt-ha-control-circular-slider
+              class="${this?.stateObj?.attributes?.preset_mode}"
+              .inactive=${this.window}
+              dual
+              .low=${this.value.low}
+              .high=${this.value.high}
+              .min=${this.min}
+              .max=${this.max}
+              .step=${this.step}
+              .current=${this.current}
+              @low-changed=${this._highChanged}
+              @low-changing=${this._highChanging}
+              @high-changed=${this._highChanged}
+              @high-changing=${this._highChanging}
+            >
+            ` : html`
+            <bt-ha-control-circular-slider
+              class="${(this?.stateObj?.attributes?.saved_temperature && this?.stateObj?.attributes?.saved_temperature !== null) ? 'eco' : ''} ${this.lowBattery !== null || this.error.length > 0 ? 'battery': ''} ${this.window ? 'window_open': ''}  ${this.summer ? 'summer': ''} "
+              .inactive=${this.window}
+              dual
+              .low=${this.value.low}
+              .high=${this.value.high}
+              .min=${this.min}
+              .max=${this.max}
+              .step=${this.step}
+              .current=${this.current}
+              @low-changed=${this._highChanged}
+              @low-changing=${this._highChanging}
+              @high-changed=${this._highChanged}
+              @high-changing=${this._highChanging}
+            >
+            `
+          ) :
+          (this?._config?.knx_mode ? 
+            html`
+            <bt-ha-control-circular-slider
+              class="${this?.stateObj?.attributes?.preset_mode}"
+              .inactive=${this.window}
+              .mode="start"
+              @value-changed=${this._highChanged}
+              @value-changing=${this._highChanging}
+              .value=${this.value.value}
+              .current=${this.current}
+              step=${this.step}
+              min=${this.min}
+              max=${this.max}
+            >
+            ` : html`
+            <bt-ha-control-circular-slider
+              class="${(this?.stateObj?.attributes?.saved_temperature && this?.stateObj?.attributes?.saved_temperature !== null) ? 'eco' : ''} ${this.lowBattery !== null || this.error.length > 0 ? 'battery': ''} ${this.window ? 'window_open': ''}  ${this.summer ? 'summer': ''} "
+              .inactive=${this.window}
+              .mode="start"
+              @value-changed=${this._highChanged}
+              @value-changing=${this._highChanging}
+              .value=${this.value.value}
+              .current=${this.current}
+              step=${this.step}
+              min=${this.min}
+              max=${this.max}
+            >
+            `
+          )
       }
       <div class="content ${this.lowBattery !== null || this.error.length > 0 ? 'battery': ''} ${this.window ? 'window_open': ''}  ${(this?.stateObj?.attributes?.saved_temperature && this?.stateObj?.attributes?.saved_temperature !== null) ? 'eco' : ''} ${this.summer ? 'summer': ''} ">
             <svg id="main" viewbox="0 0 125 100">
@@ -948,13 +998,17 @@ export class BetterThermostatUi extends LitElement implements LovelaceCard {
                   ${this._renderHVACAction(true)}
                 `}
 
+                ${this?._config?.knx_mode ? 
+                  svg `<text x="0%" y="11%" dominant-baseline="middle" text-anchor="middle" style="font-size:6px;">${svg`${localize({ hass: this.hass, string: `extra_states.knx.`+this?.stateObj?.attributes?.preset_mode }) }`}</text>` :
+                  html ``
+                }
               </g>
                 </svg>
             </div>
             </bt-ha-control-circular-slider>
             <div id="modes">
               ${this?._hasSummer ? svg`
-                ${(this?._config?.disable_heat || !this.modes.includes('heat')) ? html `` : this._renderIcon("heat", this.mode)}
+                ${(this?._config?.knx_mode || this?._config?.disable_heat || !this.modes.includes('heat')) ? html `` : this._renderIcon("heat", this.mode)}
                 ${(this?._config?.disable_heat || !this.modes.includes('heat_cool')) ? html `` : this._renderHVACIcon(this.mode)}
                 ${this?._config?.disable_eco ? html `` :
                   this?.stateObj?.attributes?.saved_temperature &&
@@ -965,7 +1019,7 @@ export class BetterThermostatUi extends LitElement implements LovelaceCard {
               `:
               svg`
                 ${this.modes.map((mode) => {
-                  if(this._config?.disable_heat && (mode === "heat" || mode === "heat_cool")) return html ``;
+                  if(this?._config?.knx_mode || (this._config?.disable_heat && (mode === "heat" || mode === "heat_cool"))) return html ``;
                   if(this._config?.disable_eco && mode === "eco") return html ``;
                   if(this._config?.disable_off && mode === "off") return html ``;
                   return this._renderIcon(mode, this.mode);

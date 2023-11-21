@@ -14,6 +14,7 @@
           "disable_menu": "Menü deaktivieren",
           "disable_battery_warning": "Batterie-Warnung deaktivieren",
           "disable_buttons": "Plus/Minus Buttons deaktivieren",
+          "knx_mode": "KNX Modus: Temperaturregler",
           "eco_temperature": "Eco Temperatur",
           "set_current_as_main": "Zieltemperatur mit aktueller Temperatur tauschen"
         }
@@ -23,6 +24,11 @@
       "window_open": "Fenster offen",
       "night_mode": "Nachtmodus",
       "eco": "Eco",
-      "summer": "Sommer"
+      "summer": "Sommer",
+      "knx": {
+        "comfort": "Komfort",
+        "sleep": "Schlafen",
+        "away": "Abwesend"
+      }
     }
   }
